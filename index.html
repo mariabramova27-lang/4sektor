@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Профессии четвертичного сектора · Мягкая математика</title>
+<style>
+  :root{
+    --bg-1:#050818; --bg-2:#0d1230;
+    --violet:#8b5cf6; --violet-light:#a78bfa; --violet-dark:#6d28d9;
+    --cyan:#22d3ee; --gold:#fbbf24; --blue:#3b82f6; --pink:#ec4899;
+    --card:#fff; --card-soft:#f8fafc;
+    --ink:#0f172a; --soft:#64748b; --line:#e2e8f0;
+    --ok:#10b981; --err:#ef4444;
+    --shadow-card:0 20px 50px rgba(0,0,0,.5);
+    --shadow-violet:0 10px 30px rgba(139,92,246,.45);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,-apple-system,'Nunito',sans-serif;
+    background:radial-gradient(ellipse at top left,#1e1b4b 0%,transparent 50%),
+      radial-gradient(ellipse at bottom right,#050818 0%,transparent 50%),
+      linear-gradient(180deg,var(--bg-1) 0%,var(--bg-2) 100%);
+    background-attachment:fixed; color:var(--ink); min-height:100vh; overflow-x:hidden}
+  #bgFX{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+  #bgFX .bg-item{position:absolute;bottom:-20vh;display:block;opacity:0;
+    animation-name:rise;animation-timing-function:linear;animation-iteration-count:infinite;
+    filter:drop-shadow(0 4px 12px rgba(0,0,0,.5))}
+  @keyframes rise{0%{transform:translate3d(0,0,0) rotate(0deg);opacity:0}
+    8%{opacity:var(--op,.10)}92%{opacity:var(--op,.10)}
+    100%{transform:translate3d(var(--dx,0),-140vh,0) rotate(var(--rot,15deg));opacity:0}}
+  .glow{position:fixed;border-radius:50%;filter:blur(90px);pointer-events:none;z-index:0}
+  .glow.g1{width:420px;height:420px;background:rgba(139,92,246,.15);top:-100px;left:-100px}
+  .glow.g2{width:380px;height:380px;background:rgba(34,211,238,.12);top:40%;right:-120px}
+  .glow.g3{width:440px;height:440px;background:rgba(251,191,36,.08);bottom:-140px;left:20%}
+  #fx{position:fixed;inset:0;pointer-events:none;z-index:150;overflow:hidden}
+  .particle{position:absolute;font-size:20px;animation:fall 1.5s linear forwards}
+  @keyframes fall{to{transform:translateY(115vh) rotate(540deg);opacity:0}}
+  .wrap{max-width:1100px;margin:0 auto;padding:22px 16px 90px;position:relative;z-index:2}
+  header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+  .brand{display:flex;align-items:center;gap:12px;color:#fff}
+  .brand-logo{width:46px;height:46px;border-radius:13px;flex-shrink:0;
+    background:linear-gradient(135deg,var(--violet),var(--cyan));
+    display:flex;align-items:center;justify-content:center;font-size:24px;
+    box-shadow:var(--shadow-violet);position:relative}
+  .brand-logo::after{content:"";position:absolute;inset:3px;border-radius:10px;
+    border:1.5px solid rgba(255,255,255,.4)}
+  .brand-text{display:flex;flex-direction:column;line-height:1.1}
+  .brand-text b{font-size:15px;color:#fff;font-weight:900}
+  .brand-text span{font-size:11.5px;font-weight:700;color:var(--cyan);
+    letter-spacing:.5px;text-transform:uppercase}
+  .stats{display:flex;gap:10px;flex-wrap:wrap}
+  .chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
+    border-radius:999px;padding:8px 16px;font-weight:800;font-size:13.5px;color:#fff;
+    display:flex;align-items:center;gap:6px;backdrop-filter:blur(10px);
+    box-shadow:0 4px 14px rgba(0,0,0,.2)}
+  .chip.coins{background:linear-gradient(135deg,rgba(139,92,246,.3),rgba(251,191,36,.15));
+    border-color:rgba(139,92,246,.5)}
+  .chip.coins b{color:var(--gold);font-weight:900}
+  .chip.score{background:linear-gradient(135deg,rgba(34,211,238,.3),rgba(147,197,253,.15));
+    border-color:rgba(34,211,238,.5)}
+  .chip.score b{color:var(--cyan);font-weight:900}
+  .intro-card{background:var(--card);border-radius:24px;box-shadow:var(--shadow-card);
+    padding:28px 30px;margin-bottom:20px;position:relative;overflow:hidden;animation:pop .4s ease}
+  .intro-card::before{content:"";position:absolute;top:0;left:0;right:0;height:5px;
+    background:linear-gradient(90deg,var(--violet),var(--cyan),var(--gold))}
+  .intro-card h1{font-size:clamp(24px,3.8vw,32px);margin:0 0 10px;
+    letter-spacing:-.7px;font-weight:900;line-height:1.15;color:var(--ink)}
+  .intro-card h1::after{content:"";display:block;width:60px;height:4px;margin-top:10px;
+    background:linear-gradient(90deg,var(--violet),var(--cyan));border-radius:2px}
+  .intro-card p{font-size:14.5px;line-height:1.7;color:var(--soft);margin:0;font-weight:500}
+  .intro-card p b{color:var(--ink);font-weight:800;
+    background:linear-gradient(180deg,transparent 60%,rgba(139,92,246,.3) 60%)}
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;
+    background:rgba(255,255,255,.05);padding:8px;border-radius:16px;
+    border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(10px)}
+  .filter-btn{flex:1;min-width:100px;padding:10px 11px;background:transparent;border:none;
+    border-radius:11px;cursor:pointer;font-family:inherit;font-weight:800;font-size:12px;
+    color:rgba(255,255,255,.65);transition:.2s;
+    display:flex;align-items:center;justify-content:center;gap:5px}
+  .filter-btn:hover{color:#fff;background:rgba(255,255,255,.06)}
+  .filter-btn.active{background:linear-gradient(135deg,var(--violet),var(--cyan));
+    color:#fff;font-weight:900;box-shadow:var(--shadow-violet)}
+  .professions-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+    gap:14px;margin-bottom:22px}
+  .prof-card{background:var(--card);border-radius:20px;padding:20px 18px;
+    cursor:pointer;transition:.25s;box-shadow:0 10px 30px rgba(0,0,0,.4);
+    position:relative;overflow:hidden;animation:pop .4s ease;animation-fill-mode:both}
+  @keyframes pop{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
+  .prof-card::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;
+    background:var(--card-accent,linear-gradient(90deg,var(--violet),var(--cyan)))}
+  .prof-card:hover{transform:translateY(-5px);box-shadow:0 20px 50px rgba(0,0,0,.6)}
+  .prof-card.visited{border:2px solid var(--ok)}
+  .prof-card.visited::after{content:"✓";position:absolute;top:14px;right:14px;
+    width:26px;height:26px;border-radius:50%;background:var(--ok);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px}
+  .prof-card .pc-emoji{font-size:48px;line-height:1;margin-bottom:10px;
+    filter:drop-shadow(0 6px 12px rgba(0,0,0,.15))}
+  .prof-card .pc-cat{display:inline-block;padding:3px 10px;border-radius:999px;
+    font-size:10.5px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
+  .prof-card .pc-title{font-size:17px;font-weight:900;color:var(--ink);line-height:1.25;
+    margin-bottom:6px}
+  .prof-card .pc-short{font-size:13px;color:var(--soft);line-height:1.5;font-weight:500;
+    margin-bottom:12px}
+  .prof-card .pc-salary{display:flex;align-items:center;gap:6px;font-size:12px;
+    font-weight:800;color:var(--violet-dark);padding-top:12px;border-top:1px dashed var(--line)}
+  .prof-card .pc-arrow{margin-left:auto;color:var(--violet-dark);font-weight:900;font-size:16px;
+    transition:.2s}
+  .prof-card:hover .pc-arrow{transform:translateX(4px)}
+  .cat-it{background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff}
+  .cat-data{background:linear-gradient(135deg,#22d3ee,#0891b2);color:#fff}
+  .cat-ai{background:linear-gradient(135deg,#ec4899,#be185d);color:#fff}
+  .cat-science{background:linear-gradient(135deg,#fbbf24,#d97706);color:#fff}
+  .cat-finance{background:linear-gradient(135deg,#10b981,#047857);color:#fff}
+  .cat-consulting{background:linear-gradient(135deg,#3b82f6,#1e40af);color:#fff}
+  .cat-management{background:linear-gradient(135deg,#f97316,#c2410c);color:#fff}
+  .cat-security{background:linear-gradient(135deg,#ef4444,#991b1b);color:#fff}
+  .accent-it{--card-accent:linear-gradient(90deg,#8b5cf6,#6d28d9)}
+  .accent-data{--card-accent:linear-gradient(90deg,#22d3ee,#0891b2)}
+  .accent-ai{--card-accent:linear-gradient(90deg,#ec4899,#be185d)}
+  .accent-science{--card-accent:linear-gradient(90deg,#fbbf24,#d97706)}
+  .accent-finance{--card-accent:linear-gradient(90deg,#10b981,#047857)}
+  .accent-consulting{--card-accent:linear-gradient(90deg,#3b82f6,#1e40af)}
+  .accent-management{--card-accent:linear-gradient(90deg,#f97316,#c2410c)}
+  .accent-security{--card-accent:linear-gradient(90deg,#ef4444,#991b1b)}
+  .modal-overlay{position:fixed;inset:0;background:rgba(3,5,15,.88);backdrop-filter:blur(10px);
+    z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;
+    opacity:0;pointer-events:none;transition:.25s}
+  .modal-overlay.open{opacity:1;pointer-events:auto}
+  .modal{background:#fff;border-radius:24px;max-width:720px;width:100%;max-height:92vh;
+    overflow-y:auto;box-shadow:0 40px 100px rgba(0,0,0,.8);transform:scale(.94);
+    transition:.28s cubic-bezier(.2,.9,.3,1.2)}
+  .modal-overlay.open .modal{transform:scale(1)}
+  .modal-head{padding:28px 28px 22px;position:relative;color:#fff;
+    border-radius:24px 24px 0 0;overflow:hidden}
+  .modal-head::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;
+    background:linear-gradient(90deg,var(--cyan),var(--violet));z-index:2}
+  .mh-emoji{font-size:56px;line-height:1;margin-bottom:10px;
+    filter:drop-shadow(0 6px 16px rgba(0,0,0,.3))}
+  .modal-head h2{margin:0;font-size:22px;font-weight:900;line-height:1.25}
+  .modal-head .mh-cat{display:inline-block;padding:3px 12px;border-radius:999px;
+    font-size:11px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;margin-top:8px;
+    background:rgba(255,255,255,.2);color:#fff;backdrop-filter:blur(4px)}
+  .modal-close{position:absolute;top:18px;right:18px;width:36px;height:36px;border-radius:50%;
+    border:none;background:rgba(255,255,255,.18);color:#fff;font-size:18px;font-weight:900;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;z-index:3}
+  .modal-close:hover{background:rgba(255,255,255,.32);transform:rotate(90deg)}
+  .modal-body{padding:24px 28px 28px}
+  .m-section{margin-bottom:24px}
+  .m-section:last-child{margin-bottom:0}
+  .m-section-title{font-size:12px;font-weight:900;letter-spacing:1px;text-transform:uppercase;
+    margin:0 0 12px;display:flex;align-items:center;gap:8px}
+  .m-section-title::after{content:"";flex:1;height:1px;
+    background:linear-gradient(90deg,currentColor,transparent);opacity:.3}
+  .m-section-title.icon-about{color:var(--violet-dark)}
+  .m-section-title.icon-track{color:#d97706}
+  .m-section-title.icon-feat{color:var(--blue)}
+  .m-section-title.icon-opp{color:var(--ok)}
+  .m-section-title.icon-risk{color:var(--err)}
+  .m-section-title.icon-fact{color:#0891b2}
+  .m-desc{font-size:14.5px;line-height:1.7;color:var(--ink);font-weight:500;
+    background:linear-gradient(135deg,#f5f3ff,#ede9fe);padding:14px 16px;border-radius:12px;
+    border-left:4px solid var(--violet)}
+  .career-track{display:flex;gap:0;flex-wrap:nowrap;overflow-x:auto;padding:6px 0 14px}
+  .career-step{display:flex;flex-direction:column;align-items:center;gap:8px;
+    min-width:120px;flex:1;position:relative;text-align:center;padding:0 4px}
+  .career-step:not(:last-child)::after{content:"→";position:absolute;right:-10px;top:20px;
+    font-size:20px;color:var(--violet);font-weight:900}
+  .career-step .cs-num{width:44px;height:44px;border-radius:50%;
+    background:linear-gradient(135deg,var(--violet),var(--violet-dark));color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:900;font-size:17px;
+    box-shadow:0 6px 16px rgba(139,92,246,.4)}
+  .career-step:nth-child(2) .cs-num{background:linear-gradient(135deg,#22d3ee,#0891b2)}
+  .career-step:nth-child(3) .cs-num{background:linear-gradient(135deg,#fbbf24,#d97706)}
+  .career-step:nth-child(4) .cs-num{background:linear-gradient(135deg,#ec4899,#be185d)}
+  .career-step:nth-child(5) .cs-num{background:linear-gradient(135deg,#10b981,#047857)}
+  .career-step .cs-title{font-size:12px;font-weight:900;color:var(--ink);line-height:1.3}
+  .career-step .cs-years{font-size:10.5px;font-weight:700;color:var(--soft);
+    background:#f1f5f9;padding:2px 8px;border-radius:999px}
+  .salary-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+  .salary-card{background:linear-gradient(135deg,#f8fafc,#eef2f7);border-radius:12px;
+    padding:12px;text-align:center;border:1px solid var(--line)}
+  .salary-card .sc-label{font-size:10px;font-weight:900;letter-spacing:.5px;
+    text-transform:uppercase;color:var(--soft);margin-bottom:4px}
+  .salary-card .sc-value{font-size:15px;font-weight:900;color:var(--violet-dark);line-height:1.2}
+  .salary-card .sc-sub{font-size:10.5px;color:var(--soft);font-weight:600;margin-top:2px}
+  .m-list{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+  .m-list li{padding:11px 14px;border-radius:11px;font-size:13.5px;line-height:1.55;
+    font-weight:500;display:flex;gap:10px;align-items:flex-start}
+  .m-list li .ml-icon{flex-shrink:0;font-size:16px;line-height:1.4}
+  .m-list li .ml-text{flex:1}
+  .m-list li .ml-text b{font-weight:900}
+  .m-list.feat li{background:linear-gradient(135deg,#eff6ff,#dbeafe);border-left:3px solid var(--blue)}
+  .m-list.feat li .ml-text b{color:#1e40af}
+  .m-list.opp li{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-left:3px solid var(--ok)}
+  .m-list.opp li .ml-text b{color:#166534}
+  .m-list.risk li{background:linear-gradient(135deg,#fef2f2,#fee2e2);border-left:3px solid var(--err)}
+  .m-list.risk li .ml-text b{color:#991b1b}
+  .fact-box{background:linear-gradient(135deg,#ecfeff,#cffafe);padding:14px 18px;
+    border-radius:12px;border-left:4px solid var(--cyan);font-size:14px;line-height:1.65;
+    color:#155e75;font-weight:600}
+  .fact-box b{font-weight:900;color:#155e75}
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:22px}
+  button.btn{font-family:inherit;font-weight:800;font-size:14px;padding:12px 22px;
+    border-radius:13px;border:none;cursor:pointer;transition:.2s}
+  button.btn:active{transform:scale(.97)}
+  .btn-p{background:linear-gradient(135deg,var(--violet),var(--violet-dark));color:#fff;
+    box-shadow:var(--shadow-violet)}
+  .btn-p:hover{filter:brightness(1.08);transform:translateY(-2px)}
+  .btn-g{background:var(--card-soft);color:var(--ink);border:1px solid var(--line)}
+  .btn-g:hover{background:#eef2f7;transform:translateY(-1px)}
+  .progress-strip{margin-top:18px;padding:14px 18px;
+    background:linear-gradient(135deg,rgba(139,92,246,.18),rgba(34,211,238,.12));
+    border:1px solid rgba(139,92,246,.35);border-radius:14px;display:flex;align-items:center;
+    gap:12px;flex-wrap:wrap}
+  .progress-strip .ps-text{font-size:13px;font-weight:800;color:var(--violet-light);
+    display:flex;align-items:center;gap:6px}
+  .progress-strip .ps-bar{flex:1;min-width:140px;height:8px;
+    background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden}
+  .progress-strip .ps-bar>div{height:100%;width:0;
+    background:linear-gradient(90deg,var(--violet),var(--cyan));border-radius:4px;transition:width .5s}
+  #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(100px);
+    background:linear-gradient(135deg,var(--violet),var(--violet-dark));color:#fff;
+    padding:14px 24px;border-radius:14px;font-weight:900;font-size:14px;
+    box-shadow:0 20px 50px rgba(139,92,246,.6);z-index:300;opacity:0;transition:.4s;
+    pointer-events:none;max-width:90vw;text-align:center}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .promo-line{margin-top:26px;font-size:12.5px;color:rgba(255,255,255,.55);text-align:center;
+    line-height:1.65;padding:16px;border-top:1px solid rgba(255,255,255,.08)}
+  .promo-line b{color:var(--cyan);font-weight:900}
+  .promo-line a{color:var(--violet-light);font-weight:700;text-decoration:none;
+    border-bottom:1px dashed currentColor}
+  @media(max-width:600px){
+    .wrap{padding:16px 12px 80px}
+    .intro-card{padding:22px 18px;border-radius:20px}
+    .prof-card{padding:16px 14px;border-radius:16px}
+    .prof-card .pc-emoji{font-size:40px}
+    .prof-card .pc-title{font-size:15px}
+    .professions-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+    .modal-head{padding:22px 18px 18px}
+    .modal-head h2{font-size:18px}
+    .mh-emoji{font-size:44px}
+    .modal-body{padding:18px 18px 22px}
+    .career-step{min-width:100px}
+    .career-step .cs-num{width:36px;height:36px;font-size:14px}
+    .career-step .cs-title{font-size:11px}
+    .salary-row{grid-template-columns:1fr}
+    .brand-text b{font-size:13.5px}
+    .brand-logo{width:40px;height:40px;font-size:20px}
+    .filter-btn{font-size:10px;padding:8px 6px;min-width:76px}
+  }
+</style>
+</head>
+<body>
+<div class="glow g1"></div><div class="glow g2"></div><div class="glow g3"></div>
+<div id="bgFX" aria-hidden="true"></div><div id="fx"></div><div id="toast"></div>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="brand-logo">💻</div>
+      <div class="brand-text">
+        <b>Мягкая математика</b>
+        <span>Профессии четвертичного сектора</span>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="chip coins">💰 <b id="coins">0</b></div>
+      <div class="chip score">🧭 <b id="score">0 / 16</b></div>
+    </div>
+  </header>
+
+  <div class="intro-card">
+    <h1>💻 Профессии четвертичного сектора</h1>
+    <p>Четвертичный сектор — это <b>работа со знаниями и информацией</b>: IT, наука, финансы, консалтинг, аналитика, искусственный интеллект. Здесь люди работают не руками и не с вещами, а <b>с идеями, данными и технологиями</b>. Нажми на профессию — узнаешь, <b>как строится карьера</b>, в чём <b>особенности</b>, какие <b>возможности</b> и <b>риски</b>.</p>
+    <div class="progress-strip">
+      <div class="ps-text">🧭 Изучено: <b id="progressText">0 из 16</b></div>
+      <div class="ps-bar"><div id="progressBar"></div></div>
+    </div>
+  </div>
+
+  <div class="filters" id="filters">
+    <button class="filter-btn active" data-cat="all">🌍 Все</button>
+    <button class="filter-btn" data-cat="it">💻 IT</button>
+    <button class="filter-btn" data-cat="data">📊 Данные</button>
+    <button class="filter-btn" data-cat="ai">🤖 ИИ</button>
+    <button class="filter-btn" data-cat="science">🔬 Наука</button>
+    <button class="filter-btn" data-cat="finance">💰 Финансы</button>
+    <button class="filter-btn" data-cat="consulting">🧠 Консалтинг</button>
+    <button class="filter-btn" data-cat="management">📋 Управление</button>
+    <button class="filter-btn" data-cat="security">🛡 Кибербезопасность</button>
+  </div>
+
+  <div class="professions-grid" id="grid"></div>
+
+  <div class="promo-line">
+    <b>Мягкая математика</b> · проект развития математических способностей ·
+    <a href="https://vk.com/smartskillsmaria" target="_blank" rel="noopener">группа ВК</a> ·
+    <a href="https://vk.com/im/convo/-229273902?entrypoint=community_page&amp;tab=all" target="_blank" rel="noopener">написать Марии Абрамовой</a>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-head" id="modalHead">
+      <button class="modal-close" id="modalClose" type="button">✕</button>
+      <div class="mh-emoji" id="mhEmoji">💻</div>
+      <h2 id="mhTitle">Профессия</h2>
+      <div class="mh-cat" id="mhCat">Категория</div>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+const CATEGORIES = {
+  it:{emoji:'💻', name:'IT', cls:'cat-it', accent:'accent-it'},
+  data:{emoji:'📊', name:'Данные', cls:'cat-data', accent:'accent-data'},
+  ai:{emoji:'🤖', name:'ИИ', cls:'cat-ai', accent:'accent-ai'},
+  science:{emoji:'🔬', name:'Наука', cls:'cat-science', accent:'accent-science'},
+  finance:{emoji:'💰', name:'Финансы', cls:'cat-finance', accent:'accent-finance'},
+  consulting:{emoji:'🧠', name:'Консалтинг', cls:'cat-consulting', accent:'accent-consulting'},
+  management:{emoji:'📋', name:'Управление', cls:'cat-management', accent:'accent-management'},
+  security:{emoji:'🛡', name:'Кибербезопасность', cls:'cat-security', accent:'accent-security'}
+};
+
+const PROFESSIONS = [
+  {
+    id:'developer', emoji:'👨‍💻', cat:'it',
+    title:'Разработчик ПО',
+    short:'Создаёт программы, приложения и игры',
+    desc:'Разработчик ПО — «архитектор цифрового мира». Он пишет код, который оживляет приложения, сайты, игры, банковские системы. Именно разработчики создали всё, что мы видим на экранах.',
+    career:[
+      {title:'Джуниор',years:'0–1 год'},
+      {title:'Мидл',years:'1–3 года'},
+      {title:'Сеньор',years:'3–7 лет'},
+      {title:'Тимлид',years:'7+ лет'},
+      {title:'Архитектор',years:'10+ лет'}
+    ],
+    salary:{start:'80 000 ₽',mid:'180 000 ₽',senior:'400 000+ ₽'},
+    features:[
+      {icon:'💻',text:'<b>Работа за компьютером</b> — можно удалённо из любой точки'},
+      {icon:'🧠',text:'<b>Постоянное обучение</b> — технологии меняются каждый год'},
+      {icon:'🧘',text:'<b>Тишина и концентрация</b> — нужно думать над задачами'}
+    ],
+    opportunities:[
+      {icon:'💰',text:'<b>Высокие зарплаты</b> — даже джуниор зарабатывает хорошо'},
+      {icon:'🌍',text:'<b>Удалённая работа</b> — можно работать на зарубежные компании'},
+      {icon:'💼',text:'<b>Свой стартап</b> — можно создать своё приложение'}
+    ],
+    risks:[
+      {icon:'👁',text:'<b>Нагрузка на глаза</b> — весь день за экраном'},
+      {icon:'⏰',text:'<b>Дедлайны</b> — иногда авралы и ночные работы'},
+      {icon:'📚',text:'<b>Выгорание</b> — нужно постоянно учиться новому'}
+    ],
+    fact:'Код первой программы для человека на Луну занимал <b>всего 72 КБ</b> — меньше, чем одно фото в мессенджере.'
+  },
+  {
+    id:'tester', emoji:'🧪', cat:'it',
+    title:'Тестировщик',
+    short:'Проверяет программы на ошибки',
+    desc:'Тестировщик — «детектив» в мире программ. Он ищет ошибки в приложениях до того, как их увидят пользователи. Именно от него зависит, будет ли приложение работать без сбоев.',
+    career:[
+      {title:'Стажёр QA',years:'0–1 год'},
+      {title:'Тестировщик',years:'1–3 года'},
+      {title:'Сеньор QA',years:'3–5 лет'},
+      {title:'QA-лид',years:'5+ лет'},
+      {title:'QA-менеджер',years:'8+ лет'}
+    ],
+    salary:{start:'60 000 ₽',mid:'120 000 ₽',senior:'250 000+ ₽'},
+    features:[
+      {icon:'🔍',text:'<b>Внимательность</b> — нужно замечать мелочи'},
+      {icon:'💻',text:'<b>Работа с программами</b> — тестируешь разные приложения'},
+      {icon:'📋',text:'<b>Много документации</b> — нужно описывать ошибки'}
+    ],
+    opportunities:[
+      {icon:'🚀',text:'<b>Быстрый вход</b> — можно выучиться за 3–6 месяцев'},
+      {icon:'💰',text:'<b>Хорошая зарплата</b> — с опытом растёт быстро'},
+      {icon:'🌍',text:'<b>Удалёнка</b> — можно работать из дома'}
+    ],
+    risks:[
+      {icon:'😴',text:'<b>Монотонность</b> — иногда приходится делать одно и то же'},
+      {icon:'😤',text:'<b>Конфликты</b> — разработчики могут спорить с тестировщиками'},
+      {icon:'⏰',text:'<b>Дедлайны</b> — нужно успеть протестировать до релиза'}
+    ],
+    fact:'Хороший тестировщик находит <b>до 100 ошибок в день</b> в новой программе — до того, как их увидит пользователь.'
+  },
+  {
+    id:'dataanalyst', emoji:'📊', cat:'data',
+    title:'Аналитик данных',
+    short:'Ищет закономерности в цифрах и данных',
+    desc:'Аналитик данных — «переводчик» с языка цифр на язык решений. Он собирает данные, находит в них закономерности, делает выводы, которые помогают бизнесу принимать решения.',
+    career:[
+      {title:'Джуниор-аналитик',years:'0–1 год'},
+      {title:'Аналитик',years:'1–3 года'},
+      {title:'Сеньор-аналитик',years:'3–5 лет'},
+      {title:'Ведущий аналитик',years:'5+ лет'},
+      {title:'Head of Analytics',years:'8+ лет'}
+    ],
+    salary:{start:'70 000 ₽',mid:'150 000 ₽',senior:'350 000+ ₽'},
+    features:[
+      {icon:'📊',text:'<b>Работа с цифрами</b> — нужно любить математику'},
+      {icon:'💻',text:'<b>Программы и таблицы</b> — Excel, SQL, Python'},
+      {icon:'🎨',text:'<b>Визуализация</b> — делать красивые графики и дашборды'}
+    ],
+    opportunities:[
+      {icon:'💰',text:'<b>Высокий доход</b> — аналитики в дефиците'},
+      {icon:'🌍',text:'<b>Работа в любой отрасли</b> — банки, ритейл, IT, медицина'},
+      {icon:'📈',text:'<b>Рост</b> — от аналитика до Head of Analytics'}
+    ],
+    risks:[
+      {icon:'📚',text:'<b>Много математики</b> — нужно понимать статистику'},
+      {icon:'🎯',text:'<b>Ответственность</b> — ошибка в анализе = неверное решение'},
+      {icon:'👁',text:'<b>Работа за экраном</b> — весь день с данными'}
+    ],
+    fact:'По данным аналитиков, компания может <b>повысить прибыль на 10–20%</b> — только за счёт правильных решений на основе данных.'
+  },
+  {
+    id:'datascientist', emoji:'🔬', cat:'data',
+    title:'Data Scientist',
+    short:'Строит математические модели для предсказаний',
+    desc:'Data Scientist — «предсказатель на данных». Он строит математические модели, которые предсказывают будущее: что купят клиенты, кто уйдёт, что произойдёт. Одна из самых оплачиваемых профессий в мире.',
+    career:[
+      {title:'Junior Data Scientist',years:'0–2 года'},
+      {title:'Data Scientist',years:'2–4 года'},
+      {title:'Senior DS',years:'4–7 лет'},
+      {title:'Lead DS',years:'7+ лет'},
+      {title:'Head of Data',years:'10+ лет'}
+    ],
+    salary:{start:'100 000 ₽',mid:'200 000 ₽',senior:'450 000+ ₽'},
+    features:[
+      {icon:'🧠',text:'<b>Глубокая математика</b> — статистика, ML, алгоритмы'},
+      {icon:'💻',text:'<b>Программирование</b> — Python, R, ML-библиотеки'},
+      {icon:'🔬',text:'<b>Исследования</b> — как учёный, но в бизнесе'}
+    ],
+    opportunities:[
+      {icon:'💰',text:'<b>Одна из самых высокооплачиваемых</b> профессий'},
+      {icon:'🚀',text:'<b>Быстрый рост</b> — растущий спрос каждый год'},
+      {icon:'🌍',text:'<b>Международная карьера</b> — можно работать за границей'}
+    ],
+    risks:[
+      {icon:'📚',text:'<b>Очень долгая учёба</b> — нужно высшее + курсы'},
+      {icon:'🎯',text:'<b>Высокая ответственность</b> — ошибки дорого стоят'},
+      {icon:'🕐',text:'<b>Сложные проекты</b> — от идеи до модели месяцы'}
+    ],
+    fact:'Data Scientist в Google, Amazon и Facebook зарабатывают <b>до 500 000 долларов в год</b> — больше, чем врачи и юристы.'
+  },
+  {
+    id:'mlengineer', emoji:'🤖', cat:'ai',
+    title:'ML-инженер',
+    short:'Обучает нейросети и внедряет ИИ',
+    desc:'ML-инженер — «тренер для нейросетей». Он обучает модели машинного обучения, настраивает их работу, внедряет в приложения. Именно он делает так, чтобы Siri понимал речь, а лента показывала то, что тебе интересно.',
+    career:[
+      {title:'Junior ML Engineer',years:'0–1 год'},
+      {title:'ML Engineer',years:'1–3 года'},
+      {title:'Senior ML',years:'3–6 лет'},
+      {title:'Tech Lead',years:'6+ лет'},
+      {title:'Head of AI',years:'10+ лет'}
+    ],
+    salary:{start:'100 000 ₽',mid:'220 000 ₽',senior:'500 000+ ₽'},
+    features:[
+      {icon:'🤖',text:'<b>Работа с ИИ</b> — нейросети, языковые модели'},
+      {icon:'💻',text:'<b>Программирование</b> — Python, TensorFlow, PyTorch'},
+      {icon:'🚀',text:'<b>Передний край</b> — работаешь с самыми новыми технологиями'}
+    ],
+    opportunities:[
+      {icon:'🌟',text:'<b>Престижная профессия</b> — ML-инженеры на вес золота'},
+      {icon:'💰',text:'<b>Огромные зарплаты</b> — в топовых компаниях до миллионов'},
+      {icon:'🚀',text:'<b>Будущее</b> — ИИ только развивается'}
+    ],
+    risks:[
+      {icon:'📚',text:'<b>Постоянное обучение</b> — новые модели каждый месяц'},
+      {icon:'⚠️',text:'<b>Ответственность</b> — ошибки ИИ могут навредить людям'},
+      {icon:'⏰',text:'<b>Стресс</b> — очень высокие требования'}
+    ],
+    fact:'ChatGPT обучали на <b>570 гигабайтах текста</b> — это как 10 миллионов книг одновременно.'
+  },
+  {
+    id:'promptengineer', emoji:'✍️', cat:'ai',
+    title:'Промпт-инженер',
+    short:'Правильно задаёт вопросы нейросетям',
+    desc:'Промпт-инженер — «переводчик» между человеком и ИИ. Он умеет задавать нейросетям вопросы так, чтобы получить лучший результат. Новая профессия, которой ещё 3–4 года назад не существовало.',
+    career:[
+      {title:'Junior промпт-инженер',years:'0–1 год'},
+      {title:'Промпт-инженер',years:'1–2 года'},
+      {title:'Senior промпт-инженер',years:'2–4 года'},
+      {title:'AI-специалист',years:'4+ лет'},
+      {title:'Head of AI Products',years:'6+ лет'}
+    ],
+    salary:{start:'60 000 ₽',mid:'120 000 ₽',senior:'250 000+ ₽'},
+    features:[
+      {icon:'✍️',text:'<b>Творчество + логика</b> — нужно уметь формулировать'},
+      {icon:'💻',text:'<b>Работа с ИИ</b> — ChatGPT, Midjourney, Claude'},
+      {icon:'🚀',text:'<b>Новая профессия</b> — многие компании только начинают'}
+    ],
+    opportunities:[
+      {icon:'🌟',text:'<b>Профессия будущего</b> — только появляется'},
+      {icon:'💼',text:'<b>Фриланс</b> — можно работать на себя'},
+      {icon:'🌍',text:'<b>Удалёнка</b> — можно работать из любой точки'}
+    ],
+    risks:[
+      {icon:'📉',text:'<b>Нестабильная профессия</b> — ИИ развивается непредсказуемо'},
+      {icon:'⚔️',text:'<b>Конкуренция</b> — много людей хотят попробовать'},
+      {icon:'📚',text:'<b>Постоянное обучение</b> — каждый месяц новые модели'}
+    ],
+    fact:'Промпт-инженеры зарабатывают <b>до 300 000 долларов в год</b> — это одна из самых быстрорастущих зарплат в истории.'
+  },
+  {
+    id:'scientist', emoji:'🔬', cat:'science',
+    title:'Учёный-исследователь',
+    short:'Открывает новые законы природы',
+    desc:'Учёный-исследователь — «разведчик незнаемого». Он проводит эксперименты, изучает явления, делает открытия, которые меняют мир. Именно учёные создали вакцины, интернет, электричество.',
+    career:[
+      {title:'Студент-исследователь',years:'0–5 лет'},
+      {title:'Аспирант',years:'5–8 лет'},
+      {title:'Научный сотрудник',years:'8–12 лет'},
+      {title:'Старший научный сотрудник',years:'12+ лет'},
+      {title:'Профессор',years:'15+ лет'}
+    ],
+    salary:{start:'40 000 ₽',mid:'80 000 ₽',senior:'200 000+ ₽'},
+    features:[
+      {icon:'🔬',text:'<b>Наука и открытия</b> — каждый день новые гипотезы'},
+      {icon:'📚',text:'<b>Много учёбы</b> — нужно высшее + аспирантура'},
+      {icon:'🧘',text:'<b>Тишина и концентрация</b> — долгие исследования'}
+    ],
+    opportunities:[
+      {icon:'🌟',text:'<b>Открытия</b> — можно изменить мир'},
+      {icon:'🌍',text:'<b>Международная карьера</b> — можно работать в лабораториях мира'},
+      {icon:'💼',text:'<b>Свои проекты</b> — можно получить грант на исследования'}
+    ],
+    risks:[
+      {icon:'⏰',text:'<b>Долгие исследования</b> — открытия могут занять годы'},
+      {icon:'💰',text:'<b>Невысокие зарплаты</b> — особенно в начале пути'},
+      {icon:'😤',text:'<b>Гранты и отчёты</b> — много бумажной работы'}
+    ],
+    fact:'Учёный Игнац Земмельвейс доказал важность мытья рук — но коллеги <b>высмеяли его</b>. Спустя 20 лет он оказался прав.'
+  },
+  {
+    id:'labassistant', emoji:'🧪', cat:'science',
+    title:'Лаборант',
+    short:'Проводит опыты и исследования в лаборатории',
+    desc:'Лаборант — «руки и глаза» учёного. Он готовит образцы, проводит опыты, фиксирует результаты. Без лаборантов не было бы ни одного научного открытия.',
+    career:[
+      {title:'Помощник лаборанта',years:'0–1 год'},
+      {title:'Лаборант',years:'1–3 года'},
+      {title:'Старший лаборант',years:'3–5 лет'},
+      {title:'Инженер-исследователь',years:'5+ лет'},
+      {title:'Зав. лабораторией',years:'10+ лет'}
+    ],
+    salary:{start:'35 000 ₽',mid:'60 000 ₽',senior:'120 000+ ₽'},
+    features:[
+      {icon:'🧪',text:'<b>Работа руками</b> — опыты, измерения, микстуры'},
+      {icon:'📚',text:'<b>Точность</b> — нужны скрупулёзность и терпение'},
+      {icon:'🔬',text:'<b>Лаборатория</b> — работа в специальной среде'}
+    ],
+    opportunities:[
+      {icon:'📈',text:'<b>Карьерный рост</b> — от лаборанта до заведующего'},
+      {icon:'🌍',text:'<b>Много отраслей</b> — медицина, химия, физика, биология'},
+      {icon:'🚀',text:'<b>Быстрый вход</b> — можно выучиться за несколько лет'}
+    ],
+    risks:[
+      {icon:'⚠️',text:'<b>Опасные вещества</b> — нужно быть осторожным'},
+      {icon:'💰',text:'<b>Невысокая зарплата</b> — особенно в начале'},
+      {icon:'😴',text:'<b>Монотонность</b> — иногда однотипные опыты'}
+    ],
+    fact:'Луи Пастер, открывший вакцину от бешенства, <b>много лет работал простым лаборантом</b> — прежде чем стал знаменитым.'
+  },
+  {
+    id:'investmentbanker', emoji:'📈', cat:'finance',
+    title:'Инвестиционный банкир',
+    short:'Помогает компаниям привлекать миллиарды',
+    desc:'Инвестиционный банкир — «финансовый стратег». Он помогает компаниям продаваться, покупать других, привлекать инвестиции. Сделки могут быть на миллиарды рублей.',
+    career:[
+      {title:'Аналитик',years:'0–2 года'},
+      {title:'Младший банкир',years:'2–4 года'},
+      {title:'Вице-президент',years:'4–7 лет'},
+      {title:'Директор',years:'7+ лет'},
+      {title:'Управляющий директор',years:'10+ лет'}
+    ],
+    salary:{start:'120 000 ₽',mid:'300 000 ₽',senior:'1 000 000+ ₽'},
+    features:[
+      {icon:'💰',text:'<b>Большие деньги</b> — работа с миллиардами'},
+      {icon:'⏰',text:'<b>Очень много работы</b> — по 12–15 часов в день'},
+      {icon:'👔',text:'<b>Деловой стиль</b> — костюмы, встречи, презентации'}
+    ],
+    opportunities:[
+      {icon:'💰',text:'<b>Огромный доход</b> — одни из самых высоких зарплат'},
+      {icon:'🌍',text:'<b>Международная карьера</b> — Лондон, Нью-Йорк, Дубай'},
+      {icon:'📈',text:'<b>Быстрый рост</b> — можно стать директором к 30 годам'}
+    ],
+    risks:[
+      {icon:'😤',text:'<b>Выгорание</b> — очень высокий темп и стресс'},
+      {icon:'⏰',text:'<b>Нет личной жизни</b> — работа поглощает всё время'},
+      {icon:'📉',text:'<b>Кризисы</b> — во время рецессии банки сокращают'}
+    ],
+    fact:'Самая крупная сделка в истории — покупка <b>компании AOL и Time Warner</b> за 350 миллиардов долларов в 2000 году.'
+  },
+  {
+    id:'financialanalyst', emoji:'💵', cat:'finance',
+    title:'Финансовый аналитик',
+    short:'Оценивает риски и строит финансовые модели',
+    desc:'Финансовый аналитик — «врач для финансов». Он оценивает, выгодно ли вкладывать деньги, строит модели, прогнозирует доходы. Без него не принимают крупных решений.',
+    career:[
+      {title:'Младший аналитик',years:'0–1 год'},
+      {title:'Аналитик',years:'1–3 года'},
+      {title:'Сеньор-аналитик',years:'3–5 лет'},
+      {title:'Руководитель',years:'5+ лет'},
+      {title:'CFO',years:'10+ лет'}
+    ],
+    salary:{start:'70 000 ₽',mid:'150 000 ₽',senior:'350 000+ ₽'},
+    features:[
+      {icon:'📊',text:'<b>Работа с цифрами</b> — таблицы, модели, прогнозы'},
+      {icon:'💻',text:'<b>Excel и программы</b> — работа с финансовыми моделями'},
+      {icon:'🧠',text:'<b>Аналитика</b> — нужно уметь видеть закономерности'}
+    ],
+    opportunities:[
+      {icon:'📈',text:'<b>Карьерный рост</b> — от аналитика до CFO'},
+      {icon:'💰',text:'<b>Хороший доход</b> — в крупных компаниях и банках'},
+      {icon:'🌍',text:'<b>Много отраслей</b> — банки, ритейл, IT, производство'}
+    ],
+    risks:[
+      {icon:'⚠️',text:'<b>Ответственность</b> — ошибка в прогнозе дорого стоит'},
+      {icon:'⏰',text:'<b>Отчётные периоды</b> — авралы раз в квартал'},
+      {icon:'📚',text:'<b>Постоянное обучение</b> — новые стандарты и инструменты'}
+    ],
+    fact:'Финансовые аналитики, которые правильно предсказали кризис 2008 года, заработали <b>миллиарды долларов</b>.'
+  },
+  {
+    id:'consultant', emoji:'🧠', cat:'consulting',
+    title:'Бизнес-консультант',
+    short:'Помогает компаниям решать сложные задачи',
+    desc:'Бизнес-консультант — «доктор для компаний». Он анализирует, что работает плохо, и предлагает решения. Компании платят огромные деньги за взгляд со стороны.',
+    career:[
+      {title:'Бизнес-аналитик',years:'0–2 года'},
+      {title:'Консультант',years:'2–4 года'},
+      {title:'Сеньор-консультант',years:'4–7 лет'},
+      {title:'Менеджер проектов',years:'7+ лет'},
+      {title:'Партнёр',years:'12+ лет'}
+    ],
+    salary:{start:'80 000 ₽',mid:'180 000 ₽',senior:'500 000+ ₽'},
+    features:[
+      {icon:'🧠',text:'<b>Анализ и стратегия</b> — нужно видеть общую картину'},
+      {icon:'✈️',text:'<b>Командировки</b> — часто работа в разных городах'},
+      {icon:'👔',text:'<b>Встречи с топами</b> — общаешься с директорами'}
+    ],
+    opportunities:[
+      {icon:'💰',text:'<b>Высокий доход</b> — особенно в топовых фирмах'},
+      {icon:'🌍',text:'<b>Международная карьера</b> — McKinsey, BCG, Bain'},
+      {icon:'📈',text:'<b>Быстрый рост</b> — можно дорасти до партнёра'}
+    ],
+    risks:[
+      {icon:'😤',text:'<b>Стресс</b> — очень высокие требования'},
+      {icon:'⏰',text:'<b>Долгие часы</b> — по 12–14 часов в день'},
+      {icon:'🏠',text:'<b>Частые разлуки</b> — постоянные командировки'}
+    ],
+    fact:'Одна часовая консультация топового бизнес-консультанта может стоить <b>более 100 000 рублей</b>.'
+  },
+  {
+    id:'hr', emoji:'🤝', cat:'consulting',
+    title:'HR-специалист',
+    short:'Находит и развивает сотрудников',
+    desc:'HR-специалист — «садовник для команд». Он находит сотрудников, помогает им расти, решает конфликты. Именно от HR зависит атмосфера в компании.',
+    career:[
+      {title:'Рекрутер',years:'0–1 год'},
+      {title:'HR-специалист',years:'1–3 года'},
+      {title:'HRBP',years:'3–5 лет'},
+      {title:'Руководитель HR',years:'5+ лет'},
+      {title:'HR-директор',years:'8+ лет'}
+    ],
+    salary:{start:'50 000 ₽',mid:'100 000 ₽',senior:'250 000+ ₽'},
+    features:[
+      {icon:'👥',text:'<b>Работа с людьми</b> — общение каждый день'},
+      {icon:'🎯',text:'<b>Поиск талантов</b> — нужно видеть потенциал'},
+      {icon:'📊',text:'<b>Аналитика</b> — метрики, отчёты, интервью'}
+    ],
+    opportunities:[
+      {icon:'📈',text:'<b>Карьера</b> — от рекрутера до HR-директора'},
+      {icon:'🌍',text:'<b>Много отраслей</b> — IT, банки, ритейл, стартапы'},
+      {icon:'💼',text:'<b>Своё агентство</b> — можно открыть рекрутинговое агентство'}
+    ],
+    risks:[
+      {icon:'😤',text:'<b>Эмоциональная нагрузка</b> — чужие проблемы'},
+      {icon:'⚔️',text:'<b>Конфликты</b> — нужно решать споры'},
+      {icon:'📉',text:'<b>Кризисы</b> — в трудные времена HR сокращают первыми'}
+    ],
+    fact:'В Google HR-отдел называется <b>People Operations</b>, и в нём работают сотни человек — больше, чем в некоторых компаниях целиком.'
+  },
+  {
+    id:'projectmanager', emoji:'📋', cat:'management',
+    title:'Менеджер проектов',
+    short:'Ведёт проекты от идеи до результата',
+    desc:'Менеджер проектов — «дирижёр» команды. Он планирует, что и когда делать, следит за сроками, решает проблемы. От него зависит, будет ли проект сдан вовремя.',
+    career:[
+      {title:'Помощник PM',years:'0–1 год'},
+      {title:'Менеджер проектов',years:'1–3 года'},
+      {title:'Сеньор PM',years:'3–5 лет'},
+      {title:'Program Manager',years:'5+ лет'},
+      {title:'Директор проектов',years:'8+ лет'}
+    ],
+    salary:{start:'70 000 ₽',mid:'140 000 ₽',senior:'300 000+ ₽'},
+    features:[
+      {icon:'📋',text:'<b>Планирование</b> — нужно видеть весь проект'},
+      {icon:'👥',text:'<b>Работа с командой</b> — координировать всех'},
+      {icon:'💬',text:'<b>Много общения</b> — встречи, статусы, отчёты'}
+    ],
+    opportunities:[
+      {icon:'📈',text:'<b>Карьерный рост</b> — от PM до директора проектов'},
+      {icon:'💰',text:'<b>Высокий доход</b> — особенно в IT и крупных компаниях'},
+      {icon:'🌍',text:'<b>Много отраслей</b> — IT, стройка, банки, медиа'}
+    ],
+    risks:[
+      {icon:'😤',text:'<b>Стресс</b> — ответственность за сроки и результат'},
+      {icon:'⏰',text:'<b>Дедлайны</b> — иногда работа без выходных'},
+      {icon:'⚔️',text:'<b>Конфликты</b> — нужно решать споры в команде'}
+    ],
+    fact:'Менеджеры проектов в IT <b>зарабатывают больше некоторых программистов</b> — если умеют вести сложные проекты.'
+  },
+  {
+    id:'productmanager', emoji:'🎯', cat:'management',
+    title:'Продакт-менеджер',
+    short:'Придумывает, каким будет продукт',
+    desc:'Продакт-менеджер — «мозг продукта». Он решает, каким будет приложение или сервис: какие функции, для кого, зачем. От него зависит, полюбят ли люди продукт.',
+    career:[
+      {title:'Младший PM',years:'0–1 год'},
+      {title:'Продакт-менеджер',years:'1–3 года'},
+      {title:'Сеньор PM',years:'3–5 лет'},
+      {title:'Group PM',years:'5+ лет'},
+      {title:'CPO',years:'8+ лет'}
+    ],
+    salary:{start:'90 000 ₽',mid:'180 000 ₽',senior:'400 000+ ₽'},
+    features:[
+      {icon:'🎯',text:'<b>Стратегия продукта</b> — нужно видеть цель'},
+      {icon:'👥',text:'<b>Работа с командой</b> — разработчики, дизайнеры, аналитики'},
+      {icon:'💡',text:'<b>Много идей</b> — нужно придумывать новое'}
+    ],
+    opportunities:[
+      {icon:'💰',text:'<b>Высокий доход</b> — один из самых оплачиваемых в IT'},
+      {icon:'🚀',text:'<b>Своё приложение</b> — можно запустить свой продукт'},
+      {icon:'📈',text:'<b>Карьера</b> — можно дорасти до CPO'}
+    ],
+    risks:[
+      {icon:'🎯',text:'<b>Ответственность</b> — за провал продукта отвечает PM'},
+      {icon:'⏰',text:'<b>Дедлайны</b> — нужно успевать всё'},
+      {icon:'😤',text:'<b>Стресс</b> — давление от руководства и пользователей'}
+    ],
+    fact:'Стив Джобс был <b>продакт-менеджером</b> Apple — и именно он решал, каким будет iPhone. Сейчас это одна из самых престижных профессий.'
+  },
+  {
+    id:'pentester', emoji:'🔐', cat:'security',
+    title:'Пентестер',
+    short:'Взламывает системы по заказу — чтобы их защитить',
+    desc:'Пентестер (тестировщик на проникновение) — «легальный хакер». Он взламывает системы компаний по заказу, чтобы найти уязвимости до того, как их найдут настоящие преступники.',
+    career:[
+      {title:'Junior пентестер',years:'0–2 года'},
+      {title:'Пентестер',years:'2–4 года'},
+      {title:'Сеньор пентестер',years:'4–7 лет'},
+      {title:'Team Lead',years:'7+ лет'},
+      {title:'CISO',years:'10+ лет'}
+    ],
+    salary:{start:'100 000 ₽',mid:'200 000 ₽',senior:'400 000+ ₽'},
+    features:[
+      {icon:'🔐',text:'<b>Хакерские навыки</b> — нужно знать, как ломать системы'},
+      {icon:'🧠',text:'<b>Логика и творчество</b> — каждый взлом уникален'},
+      {icon:'🌍',text:'<b>Удалёнка</b> — часто можно работать из дома'}
+    ],
+    opportunities:[
+      {icon:'💰',text:'<b>Очень высокий доход</b> — специалисты в дефиците'},
+      {icon:'🌟',text:'<b>Престиж</b> — топовые пентестеры становятся звёздами'},
+      {icon:'🚀',text:'<b>Bug bounty</b> — можно получать деньги за найденные баги'}
+    ],
+    risks:[
+      {icon:'⚠️',text:'<b>Серьёзная ответственность</b> — границы закона'},
+      {icon:'📚',text:'<b>Постоянное обучение</b> — новые уязвимости каждый месяц'},
+      {icon:'😤',text:'<b>Стресс</b> — нужно находить проблемы под давлением'}
+    ],
+    fact:'Крупные компании платят <b>до 1 миллиона долларов</b> за одну найденную уязвимость — через программы Bug Bounty.'
+  },
+  {
+    id:'securityanalyst', emoji:'🛡', cat:'security',
+    title:'Аналитик по безопасности',
+    short:'Защищает данные и отражает атаки',
+    desc:'Аналитик по безопасности — «страж данных». Он следит за системами, отражает хакерские атаки, защищает информацию. Без него компания может потерять всё за один день.',
+    career:[
+      {title:'SOC-аналитик L1',years:'0–1 год'},
+      {title:'SOC-аналитик L2',years:'1–3 года'},
+      {title:'Сеньор-аналитик',years:'3–5 лет'},
+      {title:'Тимлид SOC',years:'5+ лет'},
+      {title:'Руководитель ИБ',years:'8+ лет'}
+    ],
+    salary:{start:'70 000 ₽',mid:'140 000 ₽',senior:'300 000+ ₽'},
+    features:[
+      {icon:'🛡',text:'<b>Защита данных</b> — нужно думать, как хакер'},
+      {icon:'💻',text:'<b>Работа с системами</b> — мониторинг, отчёты, защита'},
+      {icon:'⏰',text:'<b>Сменный график</b> — системы работают 24/7'}
+    ],
+    opportunities:[
+      {icon:'💰',text:'<b>Высокий доход</b> — спрос огромный'},
+      {icon:'📈',text:'<b>Карьера</b> — от аналитика до руководителя ИБ'},
+      {icon:'🌍',text:'<b>Международная работа</b> — специалисты нужны везде'}
+    ],
+    risks:[
+      {icon:'😤',text:'<b>Стресс</b> — атаки могут случиться в любой момент'},
+      {icon:'⏰',text:'<b>Ночные смены</b> — работа в режиме 24/7'},
+      {icon:'🎯',text:'<b>Ответственность</b> — ошибка = утечка данных'}
+    ],
+    fact:'Каждые <b>39 секунд</b> в мире происходит кибератака. Аналитики по безопасности — единственный барьер между хакерами и данными.'
+  }
+];
+
+let state = {filter:'all', coins:0, visited:new Set()};
+const $ = id => document.getElementById(id);
+
+(function initBG(){
+  const layer = document.getElementById('bgFX');
+  if(!layer) return;
+  try{if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){layer.style.display='none';return}}catch(e){}
+  const SYMBOLS = ['💻','📊','🤖','🔬','💰','🧠','📋','🛡','🔐','📈','💡','⚡','🌐','📱','🖥','🔍','🧪','✍️','📉','🎯'];
+  const COLORS = ['#8b5cf6','#a78bfa','#22d3ee','#fbbf24','#ec4899','#ffffff','#3b82f6','#10b981'];
+  const COUNT = window.innerWidth < 600 ? 16 : 28;
+  const frag = document.createDocumentFragment();
+  for(let i=0;i<COUNT;i++){
+    const wrap = document.createElement('span');
+    wrap.className='bg-item'; wrap.setAttribute('aria-hidden','true');
+    wrap.textContent=SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)];
+    wrap.style.fontSize=(18+Math.random()*30).toFixed(1)+'px';
+    wrap.style.left=(Math.random()*100).toFixed(2)+'vw';
+    wrap.style.color=COLORS[Math.floor(Math.random()*COLORS.length)];
+    wrap.style.setProperty('--op',(0.06+Math.random()*0.10).toFixed(3));
+    wrap.style.setProperty('--dx',(Math.random()*200-100).toFixed(0)+'px');
+    wrap.style.setProperty('--rot',(Math.random()*60-30).toFixed(0)+'deg');
+    const dur=40+Math.random()*50;
+    wrap.style.animationDuration=dur.toFixed(1)+'s';
+    wrap.style.animationDelay=(-Math.random()*dur).toFixed(1)+'s';
+    frag.appendChild(wrap);
+  }
+  layer.appendChild(frag);
+})();
+
+let AC=null;
+function beep(freq=880,dur=0.15,type='sine'){
+  try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();
+    if(AC.state==='suspended')AC.resume();
+    const o=AC.createOscillator(),g=AC.createGain();
+    o.connect(g);g.connect(AC.destination);
+    o.type=type;o.frequency.value=freq;
+    g.gain.setValueAtTime(0.0001,AC.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.12,AC.currentTime+0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001,AC.currentTime+dur);
+    o.start();o.stop(AC.currentTime+dur+0.02)}catch(e){}
+}
+function soundClick(){beep(660,0.08)}
+function soundOpen(){beep(880,0.12);beep(1100,0.1);setTimeout(()=>beep(1320,0.1),80)}
+
+function confetti(n=22){
+  const emo=['💻','✨','🎉','🌟','💰','🏅','🤖','💎','⭐','🎊','🚀'];
+  const fx=$('fx');
+  for(let i=0;i<n;i++){
+    const p=document.createElement('div');
+    p.className='particle'; p.textContent=emo[Math.floor(Math.random()*emo.length)];
+    p.style.left=Math.random()*100+'vw'; p.style.top='-30px';
+    p.style.animationDuration=(1.1+Math.random()*1.2)+'s';
+    p.style.fontSize=(16+Math.random()*18)+'px';
+    fx.appendChild(p); setTimeout(()=>p.remove(),2500);
+  }
+}
+function toast(msg){
+  const t=$('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._id); t._id=setTimeout(()=>t.classList.remove('show'),2400);
+}
+function updateHUD(){
+  $('coins').textContent=state.coins;
+  $('score').textContent=state.visited.size+' / '+PROFESSIONS.length;
+  $('progressText').textContent=state.visited.size+' из '+PROFESSIONS.length;
+  $('progressBar').style.width=(state.visited.size/PROFESSIONS.length*100)+'%';
+}
+
+function renderGrid(){
+  const filtered = state.filter==='all' ? PROFESSIONS : PROFESSIONS.filter(p=>p.cat===state.filter);
+  $('grid').innerHTML = filtered.map((p,i)=>{
+    const cat=CATEGORIES[p.cat]; const visited=state.visited.has(p.id);
+    return `<div class="prof-card ${cat.accent} ${visited?'visited':''}" data-id="${p.id}" style="animation-delay:${i*0.04}s">
+      <div class="pc-emoji">${p.emoji}</div>
+      <span class="pc-cat ${cat.cls}">${cat.emoji} ${cat.name}</span>
+      <div class="pc-title">${p.title}</div>
+      <div class="pc-short">${p.short}</div>
+      <div class="pc-salary"><span>💰 от ${p.salary.start}</span><span class="pc-arrow">→</span></div>
+    </div>`;
+  }).join('');
+  document.querySelectorAll('.prof-card').forEach(c=>{
+    c.addEventListener('click',()=>openProfession(c.dataset.id));
+  });
+  updateHUD();
+}
+
+function openProfession(id){
+  const p=PROFESSIONS.find(x=>x.id===id);
+  if(!p)return;
+  const cat=CATEGORIES[p.cat];
+  $('modalHead').className='modal-head '+cat.cls;
+  $('mhEmoji').textContent=p.emoji;
+  $('mhTitle').textContent=p.title;
+  $('mhCat').textContent=cat.emoji+' '+cat.name;
+
+  $('modalBody').innerHTML=`
+    <div class="m-section">
+      <h3 class="m-section-title icon-about">📖 Что это за профессия</h3>
+      <p class="m-desc">${p.desc}</p>
+    </div>
+    <div class="m-section">
+      <h3 class="m-section-title icon-track">🚀 Карьерный трек</h3>
+      <div class="career-track">
+        ${p.career.map((s,i)=>`<div class="career-step"><div class="cs-num">${i+1}</div><div class="cs-title">${s.title}</div><div class="cs-years">${s.years}</div></div>`).join('')}
+      </div>
+      <div class="salary-row">
+        <div class="salary-card"><div class="sc-label">Старт</div><div class="sc-value">${p.salary.start}</div><div class="sc-sub">в начале пути</div></div>
+        <div class="salary-card"><div class="sc-label">Специалист</div><div class="sc-value">${p.salary.mid}</div><div class="sc-sub">через 3–5 лет</div></div>
+        <div class="salary-card"><div class="sc-label">Эксперт</div><div class="sc-value">${p.salary.senior}</div><div class="sc-sub">через 10+ лет</div></div>
+      </div>
+    </div>
+    <div class="m-section">
+      <h3 class="m-section-title icon-feat">🎯 Особенности</h3>
+      <ul class="m-list feat">${p.features.map(f=>`<li><span class="ml-icon">${f.icon}</span><span class="ml-text">${f.text}</span></li>`).join('')}</ul>
+    </div>
+    <div class="m-section">
+      <h3 class="m-section-title icon-opp">🌟 Возможности</h3>
+      <ul class="m-list opp">${p.opportunities.map(o=>`<li><span class="ml-icon">${o.icon}</span><span class="ml-text">${o.text}</span></li>`).join('')}</ul>
+    </div>
+    <div class="m-section">
+      <h3 class="m-section-title icon-risk">⚠️ Риски</h3>
+      <ul class="m-list risk">${p.risks.map(r=>`<li><span class="ml-icon">${r.icon}</span><span class="ml-text">${r.text}</span></li>`).join('')}</ul>
+    </div>
+    <div class="m-section">
+      <h3 class="m-section-title icon-fact">💡 Интересный факт</h3>
+      <div class="fact-box">${p.fact}</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-g" type="button" onclick="closeModal()">← К профессиям</button>
+    </div>`;
+
+  $('modalOverlay').classList.add('open');
+  soundOpen();
+
+  if(!state.visited.has(p.id)){
+    state.visited.add(p.id);
+    state.coins+=3;
+    updateHUD();
+    const card=document.querySelector(`.prof-card[data-id="${p.id}"]`);
+    if(card)card.classList.add('visited');
+    soundClick();
+    if(state.visited.size===PROFESSIONS.length){
+      setTimeout(()=>{toast('🏆 Все 16 профессий изучены! +25 монет'); state.coins+=25; updateHUD(); confetti(40)},500);
+    }
+  }
+}
+
+function closeModal(){
+  $('modalOverlay').classList.remove('open');
+  soundClick();
+}
+$('modalClose').addEventListener('click',closeModal);
+$('modalOverlay').addEventListener('click',e=>{if(e.target===$('modalOverlay'))closeModal()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('modalOverlay').classList.contains('open'))closeModal()});
+
+document.querySelectorAll('.filter-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    state.filter=btn.dataset.cat;
+    soundClick();
+    renderGrid();
+  });
+});
+
+renderGrid();
+updateHUD();
+</script>
+</body>
+</html>
